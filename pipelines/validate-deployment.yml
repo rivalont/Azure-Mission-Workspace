@@ -1,0 +1,70 @@
+trigger: none
+pr: none
+
+parameters:
+  - name: azureServiceConnection
+    type: string
+    default: ''
+  - name: authenticatedValidationEnabled
+    type: boolean
+    default: false
+  - name: location
+    type: string
+    default: 'eastus'
+  - name: templateFile
+    type: string
+    default: 'bicep/orchestration/deployment.bicep'
+  - name: parameterFile
+    type: string
+    default: 'service-patterns/internal-web-api/main.bicepparam'
+  - name: testProject
+    type: string
+    default: 'tests/ServicePatterns.Tests/ServicePatterns.Tests.csproj'
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Validate
+    displayName: Validate deployment request
+    jobs:
+      - job: Validation
+        displayName: Restore, lint, build, validate, and plan
+        steps:
+          - checkout: self
+          - template: templates/restore-bicep-modules.yml
+          - template: templates/bicep-format-and-lint.yml
+          - template: templates/bicep-build.yml
+            parameters:
+              artifactName: 'compiled-deployment-templates'
+          - template: templates/validate-descriptors.yml
+            parameters:
+              testProject: '${{ parameters.testProject }}'
+          - template: templates/template-validation.yml
+            parameters:
+              azureServiceConnection: '${{ parameters.azureServiceConnection }}'
+              location: '${{ parameters.location }}'
+              templateFile: '${{ parameters.templateFile }}'
+              parameterFile: '${{ parameters.parameterFile }}'
+              enabled: ${{ parameters.authenticatedValidationEnabled }}
+          - template: templates/what-if.yml
+            parameters:
+              azureServiceConnection: '${{ parameters.azureServiceConnection }}'
+              location: '${{ parameters.location }}'
+              templateFile: '${{ parameters.templateFile }}'
+              parameterFile: '${{ parameters.parameterFile }}'
+              enabled: ${{ parameters.authenticatedValidationEnabled }}
+          - script: |
+              set -euo pipefail
+              mkdir -p $(Build.ArtifactStagingDirectory)/risk
+              cp $(Build.ArtifactStagingDirectory)/whatif/what-if-normalized.json $(Build.ArtifactStagingDirectory)/risk/normalized-change-plan.json
+            displayName: Normalize evidence layout
+          - template: templates/policy-evaluation.yml
+            parameters:
+              normalizedWhatIfPath: '$(Build.ArtifactStagingDirectory)/whatif/what-if-normalized.json'
+              outputPath: '$(Build.ArtifactStagingDirectory)/policy-results.json'
+              failOnBlockingFindings: true
+          - template: templates/publish-evidence.yml
+            parameters:
+              artifactName: 'validation-evidence'
+              evidenceRoot: '$(Build.ArtifactStagingDirectory)'

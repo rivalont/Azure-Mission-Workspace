@@ -1,0 +1,123 @@
+id: internal-web-api
+displayName: Internal Web API
+version: 1.0.0
+description: >-
+  Deploys a private Linux App Service hosting an internal HTTP API with managed identity,
+  VNet integration, centralized diagnostics, and governed tagging.
+status: GA
+deploymentStrategy: ArmTemplate
+supportedClouds:
+  - AzureCommercial
+  - AzureGovernment
+supportedEnvironmentTypes:
+  - Development
+  - Test
+  - Staging
+  - Production
+supportedRegions:
+  - eastus
+  - eastus2
+  - centralus
+  - usgovvirginia
+requiredInputs:
+  - name: workloadName
+    type: string
+    description: Short workload identifier used in deterministic naming.
+  - name: location
+    type: string
+    description: Azure region for the App Service plan and site.
+  - name: environment
+    type: string
+    description: Environment classification such as dev, test, stg, or prod.
+  - name: costCenter
+    type: string
+    description: Cost allocation tag required by platform policy.
+  - name: owner
+    type: string
+    description: Email alias or team name accountable for the service.
+  - name: dataClassification
+    type: string
+    description: Data sensitivity label applied to tags and governance checks.
+  - name: logAnalyticsWorkspaceResourceId
+    type: string
+    description: Resource ID for the Log Analytics workspace receiving diagnostics.
+  - name: subnetResourceId
+    type: string
+    description: Delegated subnet resource ID for regional VNet integration.
+  - name: containerImage
+    type: string
+    description: Fully qualified container image reference for the API workload.
+optionalInputs:
+  - name: skuName
+    type: string
+    description: App Service plan SKU. Defaults to P1v3 when omitted.
+  - name: healthCheckPath
+    type: string
+    description: Endpoint used by the platform health probe.
+  - name: minInstanceCount
+    type: integer
+    description: Minimum elastic worker count for autoscale-aware hosting.
+  - name: zoneRedundantPlan
+    type: boolean
+    description: Enables zone redundancy where the selected region and SKU support it.
+  - name: appSettings
+    type: object
+    description: Additional non-secret application settings merged into the site configuration.
+secretInputs:
+  - name: acrPullPasswordSecretIdentifier
+    type: string
+    description: Optional Key Vault secret identifier containing a container registry pull password.
+  - name: downstreamApiClientSecretIdentifier
+    type: string
+    description: Optional Key Vault secret identifier for a downstream API client secret reference.
+moduleReferences:
+  - name: app-service-wrapper
+    reference: br:missionworkspace.azurecr.io/bicep/modules/app-service:1.0.0
+    version: 1.0.0
+requiredResourceProviders:
+  - Microsoft.Web
+  - Microsoft.Insights
+  - Microsoft.OperationalInsights
+requiredFeatures:
+  - Microsoft.Web/AllowRegionalVnetIntegration
+requiredTags:
+  - costCenter
+  - owner
+  - environment
+  - dataClassification
+securityControls:
+  managedIdentity: true
+  httpsOnly: true
+  minTlsVersion: '1.2'
+  publicNetworkAccess: Disabled
+networkControls:
+  ingress: Private access through VNet integration and approved upstream callers only.
+  egress: Route outbound traffic through integrated network controls defined by the environment profile.
+  privateEndpointsRequired: false
+  allowedSubnetReferences:
+    - subnetResourceId
+diagnosticControls:
+  required: true
+  logAnalyticsWorkspaceRef: logAnalyticsWorkspaceResourceId
+policyRules:
+  - AMW-TAG-001
+  - AMW-DIAG-001
+  - AMW-WEB-HTTPS-001
+  - AMW-WEB-PNA-001
+approvalRules:
+  - environmentType: Production
+    requiredApprovers: 2
+    approverRole: DeploymentApprover
+ownership:
+  team: Platform Engineering
+  contactEmail: platform-team@example.com
+documentation:
+  link: ./README.md
+deprecation: null
+outputs:
+  - name: appServiceName
+    description: Name of the created App Service resource.
+  - name: defaultHostName
+    description: Internal default hostname of the deployed site.
+  - name: principalId
+    description: System-assigned managed identity principal ID.

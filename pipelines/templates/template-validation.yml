@@ -1,0 +1,24 @@
+parameters:
+  azureServiceConnection: ''
+  location: ''
+  deploymentName: 'amw-template-validate'
+  templateFile: ''
+  parameterFile: ''
+  enabled: false
+
+steps:
+  - ${{ if eq(parameters.enabled, true) }}:
+      - task: AzureCLI@2
+        displayName: ARM validate template
+        inputs:
+          azureSubscription: '${{ parameters.azureServiceConnection }}'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            set -euo pipefail
+            az deployment sub validate               --name '${{ parameters.deploymentName }}'               --location '${{ parameters.location }}'               --template-file '${{ parameters.templateFile }}'               --parameters '@${{ parameters.parameterFile }}'               --output json > $(Build.ArtifactStagingDirectory)/template-validation.json
+
+  - ${{ if ne(parameters.enabled, true) }}:
+      - script: |
+          echo '{"skipped":true,"reason":"Authenticated validation disabled for this run."}' > $(Build.ArtifactStagingDirectory)/template-validation.json
+        displayName: Record skipped template validation

@@ -1,0 +1,29 @@
+{
+  "id": "957cb24c-78df-4a2f-8ea1-934a65944004",
+  "servicePatternId": "key-vault",
+  "servicePatternVersion": "1.0.0",
+  "environmentProfileId": "azure-government-test",
+  "requestedBy": {
+    "objectId": "44444444-4444-4444-4444-444444444444",
+    "displayName": "Alex Wilber",
+    "email": "alex.wilber@example.com"
+  },
+  "parameters": {
+    "workloadName": "shared-secrets",
+    "location": "usgovvirginia",
+    "environment": "test",
+    "costCenter": "CC-9000",
+    "owner": "team-platform@example.com",
+    "dataClassification": "Restricted",
+    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-observability/providers/Microsoft.OperationalInsights/workspaces/law-platform-gov-test",
+    "tenantId": "00000000-0000-0000-0000-000000000000",
+    "subnetResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-gov/subnets/snet-private-endpoints",
+    "allowedObjectIds": [
+      "55555555-5555-5555-5555-555555555555"
+    ]
+  },
+  "status": "Draft",
+  "correlationId": "2ffdadb7-9131-4f87-aebc-f033d3cbd71f",
+  "createdAt": "2026-08-26T00:00:00Z",
+  "etag": "etag-1"
+}

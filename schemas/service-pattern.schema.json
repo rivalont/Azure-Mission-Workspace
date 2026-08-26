@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/service-pattern.schema.json",
+  "title": "Service Pattern Descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "displayName",
+    "version",
+    "description",
+    "status",
+    "deploymentStrategy",
+    "supportedClouds",
+    "supportedEnvironmentTypes",
+    "supportedRegions",
+    "requiredInputs",
+    "optionalInputs",
+    "secretInputs",
+    "moduleReferences",
+    "requiredResourceProviders",
+    "requiredFeatures",
+    "requiredTags",
+    "securityControls",
+    "networkControls",
+    "diagnosticControls",
+    "policyRules",
+    "approvalRules",
+    "ownership",
+    "documentation",
+    "deprecation",
+    "outputs"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "displayName": { "type": "string", "minLength": 3 },
+    "version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)[.](0|[1-9][0-9]*)(?:[-+][A-Za-z0-9.-]+)?$" },
+    "description": { "type": "string", "minLength": 10 },
+    "status": { "type": "string", "enum": ["Preview", "GA", "Deprecated"] },
+    "deploymentStrategy": { "type": "string", "enum": ["ArmTemplate", "DeploymentStack"] },
+    "supportedClouds": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["AzureCommercial", "AzureGovernment"] },
+      "uniqueItems": true
+    },
+    "supportedEnvironmentTypes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["Development", "Test", "Staging", "Production"] },
+      "uniqueItems": true
+    },
+    "supportedRegions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 3 },
+      "uniqueItems": true
+    },
+    "requiredInputs": { "$ref": "#/$defs/inputList" },
+    "optionalInputs": { "$ref": "#/$defs/inputList" },
+    "secretInputs": { "$ref": "#/$defs/inputList" },
+    "moduleReferences": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "reference", "version"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "reference": { "type": "string", "pattern": "^(br:|[.]/|[.][.]/).+" },
+          "version": { "type": "string", "pattern": "^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)[.](0|[1-9][0-9]*)(?:[-+][A-Za-z0-9.-]+)?$" }
+        }
+      }
+    },
+    "requiredResourceProviders": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9.]+$" },
+      "uniqueItems": true
+    },
+    "requiredFeatures": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 },
+      "uniqueItems": true
+    },
+    "requiredTags": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "securityControls": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["managedIdentity", "httpsOnly", "minTlsVersion"],
+      "properties": {
+        "managedIdentity": { "type": "boolean" },
+        "httpsOnly": { "type": "boolean" },
+        "minTlsVersion": { "type": ["string", "number"] },
+        "publicNetworkAccess": { "type": "string" }
+      }
+    },
+    "networkControls": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ingress", "egress", "privateEndpointsRequired", "allowedSubnetReferences"],
+      "properties": {
+        "ingress": { "type": "string" },
+        "egress": { "type": "string" },
+        "privateEndpointsRequired": { "type": "boolean" },
+        "allowedSubnetReferences": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "diagnosticControls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "logAnalyticsWorkspaceRef"],
+      "properties": {
+        "required": { "type": "boolean" },
+        "logAnalyticsWorkspaceRef": { "type": "string" }
+      }
+    },
+    "policyRules": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+      "uniqueItems": true
+    },
+    "approvalRules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["environmentType", "requiredApprovers", "approverRole"],
+        "properties": {
+          "environmentType": { "type": "string", "enum": ["Development", "Test", "Staging", "Production"] },
+          "requiredApprovers": { "type": "integer", "minimum": 1, "maximum": 10 },
+          "approverRole": { "type": "string", "minLength": 3 }
+        }
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["team", "contactEmail"],
+      "properties": {
+        "team": { "type": "string", "minLength": 2 },
+        "contactEmail": { "type": "string", "format": "email" }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["link"],
+      "properties": {
+        "link": { "type": "string", "minLength": 1 }
+      }
+    },
+    "deprecation": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["announcedOn", "removalOn", "replacementPatternId", "reason"],
+          "properties": {
+            "announcedOn": { "type": "string", "format": "date" },
+            "removalOn": { "type": "string", "format": "date" },
+            "replacementPatternId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+            "reason": { "type": "string", "minLength": 5 }
+          }
+        }
+      ]
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "description"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 3 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "inputList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "type", "description"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9]*$" },
+          "type": { "type": "string", "enum": ["string", "integer", "number", "boolean", "object", "array"] },
+          "description": { "type": "string", "minLength": 5 }
+        }
+      }
+    }
+  }
+}

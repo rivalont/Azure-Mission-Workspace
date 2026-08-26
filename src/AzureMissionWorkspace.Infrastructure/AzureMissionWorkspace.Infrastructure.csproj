@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzureMissionWorkspace.Domain\AzureMissionWorkspace.Domain.csproj" />
+    <ProjectReference Include="..\AzureMissionWorkspace.Application\AzureMissionWorkspace.Application.csproj" />
+    <ProjectReference Include="..\AzureMissionWorkspace.ServicePatterns\AzureMissionWorkspace.ServicePatterns.csproj" />
+    <ProjectReference Include="..\AzureMissionWorkspace.PolicyEngine\AzureMissionWorkspace.PolicyEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.ResourceManager" />
+    <PackageReference Include="Azure.ResourceManager.Resources" />
+    <PackageReference Include="Azure.Identity" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>

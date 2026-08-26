@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/deployment-request.schema.json",
+  "title": "Deployment Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "servicePatternId",
+    "servicePatternVersion",
+    "environmentProfileId",
+    "requestedBy",
+    "parameters",
+    "status",
+    "correlationId",
+    "createdAt",
+    "etag"
+  ],
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "servicePatternId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "servicePatternVersion": { "type": "string", "pattern": "^(0|[1-9][0-9]*)[.](0|[1-9][0-9]*)[.](0|[1-9][0-9]*)(?:[-+][A-Za-z0-9.-]+)?$" },
+    "environmentProfileId": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "requestedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objectId", "displayName", "email"],
+      "properties": {
+        "objectId": { "type": "string", "pattern": "^[0-9a-fA-F-]{36}$" },
+        "displayName": { "type": "string", "minLength": 1 },
+        "email": { "type": "string", "format": "email" }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Pattern-specific parameters validated against the selected input schema."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "RequirementsComplete",
+        "PatternSelected",
+        "ParametersRendered",
+        "ValidationInProgress",
+        "ValidationFailed",
+        "ValidationPassed",
+        "PlanGenerated",
+        "AwaitingApproval",
+        "Rejected",
+        "Approved",
+        "DeploymentQueued",
+        "Deploying",
+        "DeploymentFailed",
+        "Deployed",
+        "Cancelled",
+        "Expired",
+        "EvidenceFinalized"
+      ]
+    },
+    "correlationId": { "type": "string", "format": "uuid" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "etag": { "type": "string", "minLength": 1 },
+    "version": {
+      "type": ["integer", "string"],
+      "description": "Optional concurrency token used by storage implementations that prefer numeric versions."
+    }
+  }
+}

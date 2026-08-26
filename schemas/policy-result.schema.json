@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/policy-result.schema.json",
+  "title": "Policy Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ruleId",
+    "title",
+    "description",
+    "severity",
+    "resourceId",
+    "propertyPath",
+    "actualValue",
+    "expectedCondition",
+    "remediation",
+    "documentationReference"
+  ],
+  "properties": {
+    "ruleId": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+    "title": { "type": "string", "minLength": 3 },
+    "description": { "type": "string", "minLength": 5 },
+    "severity": { "type": "string", "enum": ["Info", "Low", "Medium", "High", "Critical"] },
+    "resourceId": { "type": "string", "minLength": 1 },
+    "propertyPath": { "type": "string", "minLength": 1 },
+    "actualValue": {},
+    "expectedCondition": { "type": "string", "minLength": 3 },
+    "remediation": { "type": "string", "minLength": 5 },
+    "documentationReference": { "type": "string", "format": "uri-reference" }
+  }
+}

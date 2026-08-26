@@ -1,0 +1,50 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Model Context Protocol -->
+    <PackageVersion Include="ModelContextProtocol" Version="2.2.0" />
+    <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="2.2.0" />
+
+    <!-- ASP.NET Core / Identity -->
+    <PackageVersion Include="Microsoft.Identity.Web" Version="4.14.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+
+    <!-- Azure SDKs (abstraction / fakes for starter) -->
+    <PackageVersion Include="Azure.ResourceManager" Version="1.14.0" />
+    <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.12.0-beta.1" />
+    <PackageVersion Include="Azure.Identity" Version="1.21.0" />
+
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation" Version="12.1.1" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+
+    <!-- JSON Schema -->
+    <PackageVersion Include="JsonSchema.Net" Version="9.4.0" />
+    <PackageVersion Include="YamlDotNet" Version="18.1.0" />
+
+    <!-- Observability -->
+    <PackageVersion Include="OpenTelemetry" Version="1.18.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.18.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.18.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.18.0" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.18.0" />
+    <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="3.1.2" />
+
+    <!-- Microsoft.Extensions -->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.11" />
+
+    <!-- Testing -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
+    <PackageVersion Include="FluentAssertions" Version="7.2.2" />
+    <PackageVersion Include="NSubstitute" Version="6.2.0" />
+    <PackageVersion Include="coverlet.collector" Version="10.0.1" />
+  </ItemGroup>
+</Project>

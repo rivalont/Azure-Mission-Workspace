@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <UserSecretsId>dotnet-AzureMissionWorkspace.Worker-64d05da7-3cca-410c-b158-fbf6cc33e0bb</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AzureMissionWorkspace.Domain\AzureMissionWorkspace.Domain.csproj" />
+    <ProjectReference Include="..\AzureMissionWorkspace.Application\AzureMissionWorkspace.Application.csproj" />
+    <ProjectReference Include="..\AzureMissionWorkspace.Infrastructure\AzureMissionWorkspace.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,21 @@
+parameters:
+  repositoryRoot: '.'
+  artifactName: 'compiled-bicep'
+
+steps:
+  - script: |
+      set -euo pipefail
+      mkdir -p $(Build.ArtifactStagingDirectory)/compiled
+      find "${{ parameters.repositoryRoot }}/service-patterns" "${{ parameters.repositoryRoot }}/bicep" -name '*.bicep' -print0 | while IFS= read -r -d '' file; do
+        relative="${file#${{ parameters.repositoryRoot }}/}"
+        output="$(Build.ArtifactStagingDirectory)/compiled/${relative%.bicep}.json"
+        mkdir -p "$(dirname "$output")"
+        az bicep build --file "$file" --outfile "$output"
+      done
+    displayName: Build Bicep to ARM JSON
+
+  - task: PublishPipelineArtifact@1
+    displayName: Publish compiled templates
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)/compiled'
+      artifact: '${{ parameters.artifactName }}'

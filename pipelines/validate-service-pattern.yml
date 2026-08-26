@@ -1,0 +1,36 @@
+trigger: none
+pr: none
+
+parameters:
+  - name: patternPath
+    type: string
+    default: 'service-patterns/internal-web-api'
+  - name: testProject
+    type: string
+    default: 'tests/ServicePatterns.Tests/ServicePatterns.Tests.csproj'
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: ValidateServicePattern
+    displayName: Validate service pattern catalog entry
+    jobs:
+      - job: Validate
+        displayName: Validate descriptor, schema, and Bicep
+        steps:
+          - checkout: self
+          - template: templates/restore-bicep-modules.yml
+            parameters:
+              repositoryRoot: '.'
+          - template: templates/bicep-format-and-lint.yml
+            parameters:
+              repositoryRoot: '.'
+          - template: templates/bicep-build.yml
+            parameters:
+              repositoryRoot: '.'
+              artifactName: 'compiled-service-patterns'
+          - template: templates/validate-descriptors.yml
+            parameters:
+              repositoryRoot: '.'
+              testProject: '${{ parameters.testProject }}'
