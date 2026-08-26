@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using AzureMissionWorkspace.Application.Abstractions.Repositories;
 using AzureMissionWorkspace.Domain.Entities;
 using AzureMissionWorkspace.Domain.ValueObjects;
+using AzureMissionWorkspace.ServicePatterns.Descriptors;
 using Microsoft.Extensions.Options;
 
 namespace AzureMissionWorkspace.ServicePatterns.Loading;
@@ -58,6 +59,17 @@ public sealed class FileSystemServicePatternRepository : IServicePatternReposito
     {
         IReadOnlyCollection<ServicePattern> patterns = _catalog.Value.Values.Select(e => e.Pattern).ToArray();
         return Task.FromResult(patterns);
+    }
+
+    /// <summary>
+    /// Returns the raw authoring descriptor (module references, security controls, diagnostic
+    /// controls, etc.) for a resolved service pattern. Used by infrastructure adapters -- such as
+    /// the Bicep module resolver -- that need authoring metadata beyond the domain-level contract.
+    /// </summary>
+    public ServicePatternDescriptor? FindDescriptor(ServicePatternId id, ServicePatternVersion version)
+    {
+        _catalog.Value.TryGetValue(Key(id, version), out var entry);
+        return entry?.Descriptor;
     }
 
     private static string Key(ServicePatternId id, ServicePatternVersion version) => $"{id.Value}@{version.Value}".ToLowerInvariant();
