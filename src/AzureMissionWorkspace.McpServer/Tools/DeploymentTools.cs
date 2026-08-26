@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using AzureMissionWorkspace.Application.Abstractions.Authorization;
 using AzureMissionWorkspace.Application.UseCases.Deployments;
+using AzureMissionWorkspace.Infrastructure.Deployment;
 using AzureMissionWorkspace.McpServer.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using ModelContextProtocol.Server;
@@ -18,12 +19,18 @@ public sealed class DeploymentTools
     private readonly QueueDeploymentHandler _queueDeployment;
     private readonly GetDeploymentStatusHandler _getStatus;
     private readonly GetDeploymentEvidenceHandler _getEvidence;
+    private readonly IPipelineExecutionTracker _pipelineExecutionTracker;
 
-    public DeploymentTools(QueueDeploymentHandler queueDeployment, GetDeploymentStatusHandler getStatus, GetDeploymentEvidenceHandler getEvidence)
+    public DeploymentTools(
+        QueueDeploymentHandler queueDeployment,
+        GetDeploymentStatusHandler getStatus,
+        GetDeploymentEvidenceHandler getEvidence,
+        IPipelineExecutionTracker pipelineExecutionTracker)
     {
         _queueDeployment = queueDeployment;
         _getStatus = getStatus;
         _getEvidence = getEvidence;
+        _pipelineExecutionTracker = pipelineExecutionTracker;
     }
 
     [McpServerTool(Name = "queue_deployment", ReadOnly = false, Destructive = true, Idempotent = false)]
@@ -34,6 +41,10 @@ public sealed class DeploymentTools
         CancellationToken cancellationToken)
     {
         var execution = await _queueDeployment.HandleAsync(deploymentRequestId, cancellationToken);
+        // Tracked so the Worker's pipeline-status-reconciliation background service can poll and
+        // finalize this execution; the Worker never deploys anything itself, it only observes the
+        // Azure DevOps pipeline this tool already queued.
+        _pipelineExecutionTracker.Track(execution);
         return PipelineExecutionDto.FromDomain(execution);
     }
 

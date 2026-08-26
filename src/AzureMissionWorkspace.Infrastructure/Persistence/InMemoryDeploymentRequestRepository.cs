@@ -31,6 +31,15 @@ public sealed class InMemoryDeploymentRequestRepository : IDeploymentRequestRepo
         return Task.FromResult(matches);
     }
 
+    /// <summary>
+    /// Lists every stored deployment request currently in one of the given statuses. This is a
+    /// concrete-type-only convenience used by the Worker for reconciliation and approval-expiration
+    /// sweeps -- it is intentionally not part of <see cref="IDeploymentRequestRepository"/> so that
+    /// Application-layer test doubles are unaffected by it.
+    /// </summary>
+    public IReadOnlyCollection<DeploymentRequest> ListByStatus(params Domain.Enums.DeploymentRequestStatus[] statuses)
+        => _store.Values.Where(r => statuses.Contains(r.Status)).ToArray();
+
     public Task AddAsync(DeploymentRequest request, CancellationToken cancellationToken = default)
     {
         if (!_store.TryAdd(request.Id.Value, request))

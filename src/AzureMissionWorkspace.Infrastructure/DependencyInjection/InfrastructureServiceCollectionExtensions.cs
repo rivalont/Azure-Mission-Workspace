@@ -62,6 +62,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDeploymentStrategy, ArmTemplateDeploymentStrategy>();
         services.AddSingleton<IDeploymentStrategy, DeploymentStackStrategy>();
         services.AddSingleton<IDeploymentService, DeploymentService>();
+        services.AddSingleton<IPipelineExecutionTracker, InMemoryPipelineExecutionTracker>();
 
         // Azure DevOps -- a single deterministic fake client backing every sub-service.
         services.AddSingleton<FakeAzureDevOpsClient>();
