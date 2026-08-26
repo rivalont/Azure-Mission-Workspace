@@ -20,7 +20,7 @@
     "ruleId": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
     "title": { "type": "string", "minLength": 3 },
     "description": { "type": "string", "minLength": 5 },
-    "severity": { "type": "string", "enum": ["Info", "Low", "Medium", "High", "Critical"] },
+    "severity": { "type": "string", "enum": ["Info", "Warning", "Error", "Blocking"] },
     "resourceId": { "type": "string", "minLength": 1 },
     "propertyPath": { "type": "string", "minLength": 1 },
     "actualValue": {},

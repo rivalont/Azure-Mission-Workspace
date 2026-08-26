@@ -45,10 +45,13 @@ stateDiagram-v2
     AwaitingApproval --> Expired
     Deployed --> EvidenceFinalized
     DeploymentFailed --> EvidenceFinalized
-    Rejected --> EvidenceFinalized
-    Cancelled --> EvidenceFinalized
-    Expired --> EvidenceFinalized
 ```
+
+Rejected, Cancelled, and Expired are terminal states in this starter -- no further evidence
+finalization step is defined for them today, since no deployment attempt or pipeline execution
+exists to gather evidence for. Only requests that reach `Deployed` or `DeploymentFailed` (that is,
+requests whose approved deployment pipeline actually ran) proceed to `EvidenceFinalized`.
+
 
 ## Validation and deployment sequence
 

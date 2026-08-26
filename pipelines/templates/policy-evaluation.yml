@@ -22,7 +22,7 @@ steps:
                   'ruleId': 'AMW-WEB-PNA-001',
                   'title': 'App Service public network access must be disabled',
                   'description': 'The normalized what-if output indicates public network access is not disabled.',
-                  'severity': 'High',
+                  'severity': 'Blocking',
                   'resourceId': resource_id,
                   'propertyPath': 'properties.publicNetworkAccess',
                   'actualValue': after.get('properties', {}).get('publicNetworkAccess'),
@@ -42,7 +42,7 @@ steps:
           import json
           from pathlib import Path
           findings = json.loads(Path('${{ parameters.outputPath }}').read_text(encoding='utf-8'))
-          blocking = [f for f in findings if f.get('severity') in {'High', 'Critical'}]
+          blocking = [f for f in findings if f.get('severity') == 'Blocking']
           if blocking:
               raise SystemExit(f'Blocking policy findings present: {len(blocking)}')
           print('No blocking findings detected.')
