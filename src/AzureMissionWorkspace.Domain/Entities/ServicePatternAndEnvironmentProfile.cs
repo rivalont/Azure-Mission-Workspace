@@ -27,6 +27,7 @@ public sealed class ServicePattern
         IReadOnlyCollection<ServicePatternInput> requiredInputs,
         IReadOnlyCollection<ServicePatternInput> optionalInputs,
         IReadOnlyCollection<string> secretInputs,
+        IReadOnlyCollection<string>? moduleReferences = null,
         bool isDeprecated = false)
     {
         Id = id;
@@ -41,6 +42,7 @@ public sealed class ServicePattern
         RequiredInputs = requiredInputs;
         OptionalInputs = optionalInputs;
         SecretInputs = secretInputs;
+        ModuleReferences = moduleReferences ?? [];
         IsDeprecated = isDeprecated;
     }
 
@@ -67,6 +69,8 @@ public sealed class ServicePattern
     public IReadOnlyCollection<ServicePatternInput> OptionalInputs { get; }
 
     public IReadOnlyCollection<string> SecretInputs { get; }
+
+    public IReadOnlyCollection<string> ModuleReferences { get; }
 
     public bool IsDeprecated { get; }
 

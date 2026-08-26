@@ -11,6 +11,7 @@ using AzureMissionWorkspace.Infrastructure.Services;
 using AzureMissionWorkspace.PolicyEngine;
 using AzureMissionWorkspace.PolicyEngine.Abstractions;
 using AzureMissionWorkspace.ServicePatterns.Loading;
+using AzureMissionWorkspace.ServicePatterns.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -48,6 +49,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IDeploymentEvidenceRepository>(sp => sp.GetRequiredService<InMemoryDeploymentEvidenceRepository>());
 
         // Bicep pipeline abstractions -- deterministic fakes; no Bicep CLI or Azure credentials required locally.
+        services.AddSingleton<IBicepParameterRenderer, DeterministicBicepParameterRenderer>();
         services.AddSingleton<IBicepCompiler, FakeBicepCompiler>();
         services.AddSingleton<IBicepLinter, FakeBicepLinter>();
         services.AddSingleton<IBicepModuleResolver, DescriptorBackedBicepModuleResolver>();

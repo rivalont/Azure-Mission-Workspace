@@ -12,14 +12,28 @@ namespace AzureMissionWorkspace.PolicyEngine.Rules;
 /// </summary>
 public sealed class ApprovedModuleSourcePolicyRule : IPolicyRule
 {
+    private const string ApprovedRegistryPrefix = "br:missionworkspace.azurecr.io/bicep/modules/";
+
     public string RuleId => "AMW-MODULE-001";
 
     public IReadOnlyCollection<PolicyFinding> Evaluate(PolicyRuleContext context)
     {
-        // Module references are declared on the service-pattern descriptor and are validated at
-        // authoring time (see ServicePatterns.Descriptors); this rule re-validates them at policy
-        // evaluation time so a compromised or hand-edited descriptor cannot bypass the control.
-        return [];
+        return context.Pattern.ModuleReferences
+            .Where(reference => !reference.StartsWith(ApprovedRegistryPrefix, StringComparison.OrdinalIgnoreCase)
+                && !reference.StartsWith("./", StringComparison.Ordinal)
+                && !reference.StartsWith("../", StringComparison.Ordinal))
+            .Select(reference => new PolicyFinding(
+                RuleId,
+                "Module source not approved",
+                $"The module reference '{reference}' is not from the approved private registry or an allowed relative path.",
+                PolicyFindingSeverity.Blocking,
+                ResourceId: null,
+                PropertyPath: "moduleReferences",
+                ActualValue: reference,
+                ExpectedCondition: $"Starts with '{ApprovedRegistryPrefix}' or a relative path.",
+                Remediation: "Update the service pattern to use the approved private module registry or an explicitly allowed relative path.",
+                DocumentationReference: "docs/service-pattern-authoring.md"))
+            .ToArray();
     }
 }
 
@@ -30,10 +44,36 @@ public sealed class PinnedModuleVersionPolicyRule : IPolicyRule
 
     public IReadOnlyCollection<PolicyFinding> Evaluate(PolicyRuleContext context)
     {
-        // Enforced at descriptor-authoring time via schemas/service-pattern.schema.json, which
-        // requires every moduleReferences[].version to match a semantic version pattern; this
-        // rule exists as the runtime-side enforcement point for defense in depth.
-        return [];
+        return context.Pattern.ModuleReferences
+            .Where(static reference => !IsPinnedReference(reference))
+            .Select(reference => new PolicyFinding(
+                RuleId,
+                "Module version not pinned",
+                $"The module reference '{reference}' is not pinned to a specific semantic version.",
+                PolicyFindingSeverity.Blocking,
+                ResourceId: null,
+                PropertyPath: "moduleReferences",
+                ActualValue: reference,
+                ExpectedCondition: "A semantic version such as 1.2.3; mutable tags like latest are not allowed.",
+                Remediation: "Pin the module reference to an immutable semantic version.",
+                DocumentationReference: "docs/service-pattern-authoring.md"))
+            .ToArray();
+    }
+
+    private static bool IsPinnedReference(string reference)
+    {
+        if (reference.StartsWith("./", StringComparison.Ordinal) || reference.StartsWith("../", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        var version = reference.Split(':').LastOrDefault();
+        if (string.IsNullOrWhiteSpace(version) || string.Equals(version, "latest", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return Version.TryParse(version, out _);
     }
 }
 

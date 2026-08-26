@@ -23,6 +23,7 @@ public static class ServicePatternDescriptorMapper
             descriptor.RequiredInputs.Select(i => ToDomainInput(i, isRequired: true)).ToArray(),
             descriptor.OptionalInputs.Select(i => ToDomainInput(i, isRequired: false)).ToArray(),
             descriptor.SecretInputs.Select(i => i.Name).ToArray(),
+            descriptor.ModuleReferences.Select(m => $"{m.Reference}:{m.Version}").ToArray(),
             isDeprecated: string.Equals(descriptor.Status, "Deprecated", StringComparison.OrdinalIgnoreCase) || descriptor.Deprecation is not null);
     }
 
