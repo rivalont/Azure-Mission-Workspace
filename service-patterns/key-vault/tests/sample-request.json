@@ -14,7 +14,7 @@
     "environment": "test",
     "costCenter": "CC-9000",
     "owner": "team-platform@example.com",
-    "dataClassification": "Restricted",
+    "dataClassification": "HighlyConfidential",
     "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-observability/providers/Microsoft.OperationalInsights/workspaces/law-platform-gov-test",
     "tenantId": "00000000-0000-0000-0000-000000000000",
     "subnetResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-gov/subnets/snet-private-endpoints",
