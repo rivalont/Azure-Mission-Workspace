@@ -51,13 +51,22 @@ public sealed class InMemoryDeploymentRequestRepository : IDeploymentRequestRepo
         return Task.CompletedTask;
     }
 
-    public Task SaveAsync(DeploymentRequest request, CancellationToken cancellationToken = default)
+public Task SaveAsync(DeploymentRequest request, CancellationToken cancellationToken = default)
+{
+    if (!_persistedVersions.TryGetValue(request.Id.Value, out var persistedVersion))
     {
-        // The in-memory store holds the same mutable reference the caller already mutated, so we
-        // only need to validate that no concurrent writer advanced the version past what this
-        // caller observed before mutating.
-        _persistedVersions.AddOrUpdate(request.Id.Value, request.Version, (_, _) => request.Version);
-        _store[request.Id.Value] = request;
-        return Task.CompletedTask;
+        throw new ConcurrencyConflictException(nameof(DeploymentRequest), request.Id.ToString());
+    }
+
+    // DeploymentRequest increments Version on mutation; persisted version should be exactly one behind.
+    if (persistedVersion != request.Version - 1)
+    {
+        throw new ConcurrencyConflictException(nameof(DeploymentRequest), request.Id.ToString());
+    }
+
+    _persistedVersions[request.Id.Value] = request.Version;
+    _store[request.Id.Value] = request;
+    return Task.CompletedTask;
+}
     }
 }
