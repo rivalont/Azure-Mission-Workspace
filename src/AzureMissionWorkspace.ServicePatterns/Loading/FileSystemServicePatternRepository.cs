@@ -61,6 +61,12 @@ public sealed class FileSystemServicePatternRepository : IServicePatternReposito
         return Task.FromResult(patterns);
     }
 
+    public Task<string?> GetInputSchemaJsonAsync(ServicePatternId id, ServicePatternVersion version, CancellationToken cancellationToken = default)
+    {
+        _catalog.Value.TryGetValue(Key(id, version), out var entry);
+        return Task.FromResult(entry?.InputSchemaJson);
+    }
+
     /// <summary>
     /// Returns the raw authoring descriptor (module references, security controls, diagnostic
     /// controls, etc.) for a resolved service pattern. Used by infrastructure adapters -- such as

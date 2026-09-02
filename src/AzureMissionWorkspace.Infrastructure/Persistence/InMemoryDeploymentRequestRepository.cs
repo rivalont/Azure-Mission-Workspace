@@ -51,22 +51,21 @@ public sealed class InMemoryDeploymentRequestRepository : IDeploymentRequestRepo
         return Task.CompletedTask;
     }
 
-public Task SaveAsync(DeploymentRequest request, CancellationToken cancellationToken = default)
-{
-    if (!_persistedVersions.TryGetValue(request.Id.Value, out var persistedVersion))
+    public Task SaveAsync(DeploymentRequest request, CancellationToken cancellationToken = default)
     {
-        throw new ConcurrencyConflictException(nameof(DeploymentRequest), request.Id.ToString());
-    }
+        if (!_persistedVersions.TryGetValue(request.Id.Value, out var persistedVersion))
+        {
+            throw new ConcurrencyConflictException(nameof(DeploymentRequest), request.Id.ToString());
+        }
 
-    // DeploymentRequest increments Version on mutation; persisted version should be exactly one behind.
-    if (persistedVersion != request.Version - 1)
-    {
-        throw new ConcurrencyConflictException(nameof(DeploymentRequest), request.Id.ToString());
-    }
+        // DeploymentRequest increments Version on mutation; persisted version should be exactly one behind.
+        if (persistedVersion != request.Version - 1)
+        {
+            throw new ConcurrencyConflictException(nameof(DeploymentRequest), request.Id.ToString());
+        }
 
-    _persistedVersions[request.Id.Value] = request.Version;
-    _store[request.Id.Value] = request;
-    return Task.CompletedTask;
-}
+        _persistedVersions[request.Id.Value] = request.Version;
+        _store[request.Id.Value] = request;
+        return Task.CompletedTask;
     }
 }

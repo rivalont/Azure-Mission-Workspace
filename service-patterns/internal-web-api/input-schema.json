@@ -42,7 +42,7 @@
     "dataClassification": {
       "type": "string",
       "enum": ["Public", "Internal", "Confidential", "HighlyConfidential"]
-    }
+    },
     "logAnalyticsWorkspaceResourceId": {
       "type": "string",
       "pattern": "^/subscriptions/.+/providers/Microsoft[.]OperationalInsights/workspaces/.+$"

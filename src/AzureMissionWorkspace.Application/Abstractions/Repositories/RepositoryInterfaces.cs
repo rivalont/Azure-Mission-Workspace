@@ -30,6 +30,9 @@ public interface IServicePatternRepository
     Task<ServicePattern?> FindLatestAsync(ServicePatternId id, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<ServicePattern>> ListAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>Returns the raw <c>input-schema.json</c> content for a service pattern, or <c>null</c> if none exists.</summary>
+    Task<string?> GetInputSchemaJsonAsync(ServicePatternId id, ServicePatternVersion version, CancellationToken cancellationToken = default);
 }
 
 /// <summary>Read-only access to platform-administrator-controlled <see cref="EnvironmentProfile"/> records.</summary>

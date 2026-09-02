@@ -1,6 +1,7 @@
 using AzureMissionWorkspace.Application.Abstractions.Bicep;
 using AzureMissionWorkspace.Application.Abstractions.Policy;
 using AzureMissionWorkspace.Application.Abstractions.Repositories;
+using AzureMissionWorkspace.Application.Abstractions.Services;
 using AzureMissionWorkspace.Application.Dtos;
 using AzureMissionWorkspace.Application.UseCases.Approvals;
 using AzureMissionWorkspace.Application.UseCases.DeploymentPlans;
@@ -46,7 +47,7 @@ public sealed class WorkflowIntegrationTests
         var selectHandler = new SelectServicePatternHandler(requests, patterns, environments, new SelectServicePatternInputValidator());
         request = await selectHandler.HandleAsync(new SelectServicePatternInput(request.Id.Value, "internal-web-api", "1.0.0", request.Version));
 
-        var updateHandler = new UpdateDeploymentRequestHandler(requests, patterns);
+        var updateHandler = new UpdateDeploymentRequestHandler(requests, patterns, serviceProvider.GetRequiredService<IInputSchemaValidator>());
         request = await updateHandler.HandleAsync(new UpdateDeploymentRequestInput(
             request.Id.Value,
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

@@ -1,18 +1,16 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using AzureMissionWorkspace.Application.Abstractions.Services;
 using Json.Schema;
 
 namespace AzureMissionWorkspace.ServicePatterns.Rendering;
-
-/// <summary>Result of validating a candidate parameter set against a service pattern's <c>input-schema.json</c>.</summary>
-public sealed record InputSchemaValidationResult(bool IsValid, IReadOnlyCollection<string> Errors);
 
 /// <summary>
 /// Validates requestor-supplied parameter values against a service pattern's JSON Schema
 /// (<c>input-schema.json</c>), in addition to the lighter-weight required-input check performed by
 /// the Application layer.
 /// </summary>
-public sealed class ServicePatternInputSchemaValidator
+public sealed class ServicePatternInputSchemaValidator : IInputSchemaValidator
 {
     public InputSchemaValidationResult Validate(string inputSchemaJson, IReadOnlyDictionary<string, string> parameterValues)
     {
@@ -52,4 +50,5 @@ private static string TryAsJsonLiteral(string value)
     {
         return JsonSerializer.Serialize(value);
     }
+}
 }

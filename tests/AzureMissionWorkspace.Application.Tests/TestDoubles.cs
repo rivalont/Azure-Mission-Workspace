@@ -2,6 +2,7 @@ using AzureMissionWorkspace.Application.Abstractions.AzureDevOps;
 using AzureMissionWorkspace.Application.Abstractions.Bicep;
 using AzureMissionWorkspace.Application.Abstractions.Policy;
 using AzureMissionWorkspace.Application.Abstractions.Repositories;
+using AzureMissionWorkspace.Application.Abstractions.Services;
 using AzureMissionWorkspace.Domain.Entities;
 using AzureMissionWorkspace.Domain.ValueObjects;
 
@@ -48,6 +49,9 @@ internal sealed class TestServicePatternRepository(params ServicePattern[] patte
 
     public Task<IReadOnlyCollection<ServicePattern>> ListAsync(CancellationToken cancellationToken = default)
         => Task.FromResult<IReadOnlyCollection<ServicePattern>>(_patterns.Values.ToArray());
+
+    public Task<string?> GetInputSchemaJsonAsync(ServicePatternId id, ServicePatternVersion version, CancellationToken cancellationToken = default)
+        => Task.FromResult<string?>(null);
 }
 
 internal sealed class TestEnvironmentProfileRepository(params EnvironmentProfile[] profiles) : IEnvironmentProfileRepository
@@ -185,4 +189,10 @@ internal sealed class TestAzureDevOpsClient : IAzureDevOpsClient, IApprovalServi
 
     public Task<PipelineRunStatus> GetStatusAsync(int buildId, CancellationToken cancellationToken = default)
         => Task.FromResult(new PipelineRunStatus(buildId, "completed", "succeeded"));
+}
+
+internal sealed class TestInputSchemaValidator : IInputSchemaValidator
+{
+    public InputSchemaValidationResult Validate(string inputSchemaJson, IReadOnlyDictionary<string, string> parameterValues)
+        => new(true, []);
 }

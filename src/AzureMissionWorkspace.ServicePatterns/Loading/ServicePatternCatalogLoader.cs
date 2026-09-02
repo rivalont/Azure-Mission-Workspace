@@ -4,7 +4,7 @@ using AzureMissionWorkspace.ServicePatterns.Descriptors;
 namespace AzureMissionWorkspace.ServicePatterns.Loading;
 
 /// <summary>A parsed service pattern paired with the raw descriptor it was parsed from and the directory it was loaded from.</summary>
-public sealed record LoadedServicePattern(ServicePattern Pattern, ServicePatternDescriptor Descriptor, string DirectoryPath);
+public sealed record LoadedServicePattern(ServicePattern Pattern, ServicePatternDescriptor Descriptor, string DirectoryPath, string? InputSchemaJson = null);
 
 /// <summary>
 /// Loads the approved service-pattern catalog from a directory tree such as the repository's
@@ -34,7 +34,11 @@ public sealed class ServicePatternCatalogLoader
 
             var descriptor = _parser.ParseFile(descriptorPath);
             var pattern = ServicePatternDescriptorMapper.ToDomain(descriptor);
-            results.Add(new LoadedServicePattern(pattern, descriptor, directory));
+
+            var inputSchemaPath = Path.Combine(directory, "input-schema.json");
+            var inputSchemaJson = File.Exists(inputSchemaPath) ? File.ReadAllText(inputSchemaPath) : null;
+
+            results.Add(new LoadedServicePattern(pattern, descriptor, directory, inputSchemaJson));
         }
 
         return results;

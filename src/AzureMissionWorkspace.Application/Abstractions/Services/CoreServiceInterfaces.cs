@@ -67,3 +67,15 @@ public interface IExplanationService
 
     Task<string> ExplainPolicyFindingAsync(PolicyFinding finding, CancellationToken cancellationToken = default);
 }
+
+/// <summary>Result of validating a candidate parameter set against a service pattern's <c>input-schema.json</c>.</summary>
+public sealed record InputSchemaValidationResult(bool IsValid, IReadOnlyCollection<string> Errors);
+
+/// <summary>
+/// Validates requestor-supplied parameter values against a service pattern's JSON Schema
+/// (<c>input-schema.json</c>). Implementations live in the ServicePatterns layer.
+/// </summary>
+public interface IInputSchemaValidator
+{
+    InputSchemaValidationResult Validate(string inputSchemaJson, IReadOnlyDictionary<string, string> parameterValues);
+}

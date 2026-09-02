@@ -75,7 +75,7 @@ public sealed class HandlerTests
         var requests = new TestDeploymentRequestRepository();
         await requests.AddAsync(request);
 
-        var handler = new UpdateDeploymentRequestHandler(requests, new TestServicePatternRepository(pattern));
+        var handler = new UpdateDeploymentRequestHandler(requests, new TestServicePatternRepository(pattern), new TestInputSchemaValidator());
 
         var updated = await handler.HandleAsync(new UpdateDeploymentRequestInput(
             request.Id.Value,
@@ -98,7 +98,7 @@ public sealed class HandlerTests
         var parameterValues = TestData.CreateValidParameterValues();
         parameterValues.Remove("containerImage");
 
-        var handler = new UpdateDeploymentRequestHandler(requests, new TestServicePatternRepository(pattern));
+        var handler = new UpdateDeploymentRequestHandler(requests, new TestServicePatternRepository(pattern), new TestInputSchemaValidator());
 
         var act = () => handler.HandleAsync(new UpdateDeploymentRequestInput(request.Id.Value, parameterValues, request.Version));
 

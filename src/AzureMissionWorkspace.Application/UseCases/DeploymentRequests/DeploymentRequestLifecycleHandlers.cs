@@ -1,4 +1,5 @@
 using AzureMissionWorkspace.Application.Abstractions.Repositories;
+using AzureMissionWorkspace.Application.Abstractions.Services;
 using AzureMissionWorkspace.Application.Dtos;
 using AzureMissionWorkspace.Domain.Entities;
 using AzureMissionWorkspace.Domain.Exceptions;
@@ -74,11 +75,16 @@ public sealed class UpdateDeploymentRequestHandler
 {
     private readonly IDeploymentRequestRepository _requests;
     private readonly IServicePatternRepository _patterns;
+    private readonly IInputSchemaValidator _inputSchemaValidator;
 
-    public UpdateDeploymentRequestHandler(IDeploymentRequestRepository requests, IServicePatternRepository patterns)
+    public UpdateDeploymentRequestHandler(
+        IDeploymentRequestRepository requests,
+        IServicePatternRepository patterns,
+        IInputSchemaValidator inputSchemaValidator)
     {
         _requests = requests;
         _patterns = patterns;
+        _inputSchemaValidator = inputSchemaValidator;
     }
 
     public async Task<DeploymentRequest> HandleAsync(UpdateDeploymentRequestInput input, CancellationToken cancellationToken = default)
@@ -103,6 +109,19 @@ public sealed class UpdateDeploymentRequestHandler
         if (missingRequired.Length > 0)
         {
             throw new InvalidDeploymentParametersException($"Missing required input(s): {string.Join(", ", missingRequired)}.");
+        }
+
+        var inputSchemaJson = await _patterns.GetInputSchemaJsonAsync(
+            request.SelectedServicePatternId.Value, request.SelectedServicePatternVersion.Value, cancellationToken);
+
+        if (inputSchemaJson is not null)
+        {
+            var schemaResult = _inputSchemaValidator.Validate(inputSchemaJson, input.ParameterValues);
+            if (!schemaResult.IsValid)
+            {
+                throw new InvalidDeploymentParametersException(
+                    $"Input schema validation failed: {string.Join("; ", schemaResult.Errors)}.");
+            }
         }
 
         var parameters = new DeploymentParameters(pattern.SecretInputs);

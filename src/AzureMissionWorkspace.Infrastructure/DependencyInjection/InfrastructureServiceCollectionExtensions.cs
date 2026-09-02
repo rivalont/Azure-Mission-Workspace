@@ -79,6 +79,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddSingleton<IServiceAvailabilityProvider, IndeterminateServiceAvailabilityProvider>();
         services.AddSingleton<IExplanationService, DeterministicExplanationService>();
 
+        // Input schema validation.
+        services.AddSingleton<IInputSchemaValidator, ServicePatternInputSchemaValidator>();
+
         // Policy engine.
         services.AddSingleton<IPolicyCatalog, StaticPolicyCatalog>();
         services.AddSingleton<IPolicyResultNormalizer, PolicyResultNormalizer>();
