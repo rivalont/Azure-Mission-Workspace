@@ -39,23 +39,17 @@ public sealed class ServicePatternInputSchemaValidator
         return new InputSchemaValidationResult(false, errors.Length > 0 ? errors : ["Input schema validation failed."]);
     }
 
-    private static string TryAsJsonLiteral(string value)
+private static string TryAsJsonLiteral(string value)
+{
+    // Parameter values are collected as strings. If the value is already valid JSON (number, bool,
+    // array, object, or quoted string), keep it. Otherwise, encode it as a JSON string literal.
+    try
     {
-        // Parameter values are collected as strings; attempt to preserve booleans/numbers/JSON
-        // arrays and objects as their native JSON type, falling back to a quoted string literal.
-        if (bool.TryParse(value, out _) || double.TryParse(value, out _))
-        {
-            return value;
-        }
-
-        try
-        {
-            JsonDocument.Parse(value);
-            return value;
-        }
-        catch (JsonException)
-        {
-            return JsonSerializer.Serialize(value);
-        }
+        JsonDocument.Parse(value);
+        return value;
+    }
+    catch (JsonException)
+    {
+        return JsonSerializer.Serialize(value);
     }
 }
