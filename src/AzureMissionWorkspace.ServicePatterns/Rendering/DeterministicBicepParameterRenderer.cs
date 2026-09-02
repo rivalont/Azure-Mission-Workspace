@@ -59,14 +59,39 @@ public sealed class DeterministicBicepParameterRenderer : IBicepParameterRendere
         return Task.FromResult(builder.ToString());
     }
 
-    private static string FormatValue(string type, string value)
+private static string FormatValue(string type, string value)
+{
+    var normalizedType = type.ToLowerInvariant();
+
+    return normalizedType switch
     {
-        return type.ToLowerInvariant() switch
+        "boolean" => bool.TryParse(value, out var b)
+            ? b.ToString().ToLowerInvariant()
+            : throw new InvalidOperationException($"Invalid boolean value '{value}'."),
+
+        "integer" => long.TryParse(value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var i)
+            ? i.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            : throw new InvalidOperationException($"Invalid integer value '{value}'."),
+
+        "number" => double.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var d)
+            ? d.ToString("R", System.Globalization.CultureInfo.InvariantCulture)
+            : throw new InvalidOperationException($"Invalid numeric value '{value}'."),
+
+        "array" or "object" => $"json('{NormalizeJson(value).Replace("'", "\\'")}')",
+
+        _ => $"'{value.Replace("'", "\\'")}'",
+    };
+
+    static string NormalizeJson(string candidate)
+    {
+        try
         {
-            "boolean" => value.ToLowerInvariant(),
-            "integer" or "number" => value,
-            "array" or "object" => value,
-            _ => $"'{value.Replace("'", "\\'")}'",
-        };
+            using var doc = System.Text.Json.JsonDocument.Parse(candidate);
+            return System.Text.Json.JsonSerializer.Serialize(doc.RootElement, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+        }
+        catch (System.Text.Json.JsonException ex)
+        {
+            throw new InvalidOperationException($"Invalid JSON value '{candidate}'.", ex);
+        }
     }
 }
