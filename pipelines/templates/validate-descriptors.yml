@@ -1,0 +1,24 @@
+parameters:
+  repositoryRoot: '.'
+  testProject: 'tests/ServicePatterns.Tests/ServicePatterns.Tests.csproj'
+
+steps:
+  - script: |
+      set -euo pipefail
+      echo "Validating descriptor and request schemas"
+      python - <<'PY'
+      import json
+      from pathlib import Path
+      root = Path('${{ parameters.repositoryRoot }}')
+      for file in list((root / 'schemas').glob('*.json')) + list((root / 'service-patterns').glob('**/*.json')) + list((root / 'environment-profiles').glob('*.json')):
+          json.loads(file.read_text(encoding='utf-8'))
+          print(f'Validated JSON syntax: {file}')
+      PY
+    displayName: Validate JSON descriptor syntax
+
+  - task: DotNetCoreCLI@2
+    displayName: Run service-pattern validation tests
+    inputs:
+      command: test
+      projects: '${{ parameters.testProject }}'
+      arguments: '--configuration Release --no-restore'

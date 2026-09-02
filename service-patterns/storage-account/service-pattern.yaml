@@ -1,0 +1,117 @@
+id: storage-account
+displayName: Storage Account
+version: 1.0.0
+description: >-
+  Deploys a governed StorageV2 account with HTTPS-only access, minimum TLS 1.2,
+  network restrictions, diagnostics, and deterministic naming.
+status: GA
+deploymentStrategy: ArmTemplate
+supportedClouds:
+  - AzureCommercial
+  - AzureGovernment
+supportedEnvironmentTypes:
+  - Development
+  - Test
+  - Staging
+  - Production
+supportedRegions:
+  - eastus
+  - eastus2
+  - centralus
+  - usgovvirginia
+requiredInputs:
+  - name: workloadName
+    type: string
+    description: Short workload identifier used in storage account naming.
+  - name: location
+    type: string
+    description: Azure region where the storage account is created.
+  - name: environment
+    type: string
+    description: Environment short code used in tags.
+  - name: costCenter
+    type: string
+    description: Cost allocation tag required by policy.
+  - name: owner
+    type: string
+    description: Team or email alias accountable for the storage account.
+  - name: dataClassification
+    type: string
+    description: Data sensitivity label for governance workflows.
+  - name: logAnalyticsWorkspaceResourceId
+    type: string
+    description: Log Analytics workspace resource ID for diagnostics.
+  - name: replicationSku
+    type: string
+    description: Replication SKU such as Standard_LRS or Standard_GRS.
+  - name: subnetResourceIds
+    type: array
+    description: Approved subnet resource IDs allowed to reach private endpoints or network ACLs.
+optionalInputs:
+  - name: accountKind
+    type: string
+    description: Storage account kind, defaulting to StorageV2.
+  - name: accessTier
+    type: string
+    description: Default blob access tier.
+  - name: allowBlobPublicAccess
+    type: boolean
+    description: Whether blob public access is permitted. Defaults to false.
+  - name: enableHierarchicalNamespace
+    type: boolean
+    description: Enables Data Lake Storage Gen2 support.
+secretInputs:
+  - name: customerManagedKeySecretIdentifier
+    type: string
+    description: Key Vault secret identifier carrying metadata for customer-managed key operations.
+moduleReferences:
+  - name: storage-account-wrapper
+    reference: br:missionworkspace.azurecr.io/bicep/modules/storage-account:1.0.0
+    version: 1.0.0
+requiredResourceProviders:
+  - Microsoft.Storage
+  - Microsoft.Insights
+  - Microsoft.OperationalInsights
+requiredFeatures:
+  - Microsoft.Storage/AllowCrossTenantReplication
+requiredTags:
+  - costCenter
+  - owner
+  - environment
+  - dataClassification
+securityControls:
+  managedIdentity: false
+  httpsOnly: true
+  minTlsVersion: '1.2'
+  publicNetworkAccess: Disabled
+networkControls:
+  ingress: Default action deny with explicit virtual network rules and private access expectation.
+  egress: Managed by consuming applications and environment network policy.
+  privateEndpointsRequired: true
+  allowedSubnetReferences:
+    - subnetResourceIds
+diagnosticControls:
+  required: true
+  logAnalyticsWorkspaceRef: logAnalyticsWorkspaceResourceId
+policyRules:
+  - AMW-TAG-001
+  - AMW-DIAG-001
+  - AMW-STG-HTTPS-001
+  - AMW-STG-PNA-001
+approvalRules:
+  - environmentType: Production
+    requiredApprovers: 2
+    approverRole: DeploymentApprover
+ownership:
+  team: Platform Engineering
+  contactEmail: platform-team@example.com
+documentation:
+  link: ./README.md
+deprecation: null
+outputs:
+  - name: storageAccountName
+    description: Name of the created storage account.
+  - name: blobEndpoint
+    description: Blob service endpoint URI.
+  - name: resourceId
+    description: Resource ID of the storage account.

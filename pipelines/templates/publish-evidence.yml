@@ -1,0 +1,10 @@
+parameters:
+  artifactName: 'deployment-evidence'
+  evidenceRoot: '$(Build.ArtifactStagingDirectory)'
+
+steps:
+  - task: PublishPipelineArtifact@1
+    displayName: Publish deployment evidence
+    inputs:
+      targetPath: '${{ parameters.evidenceRoot }}'
+      artifact: '${{ parameters.artifactName }}'

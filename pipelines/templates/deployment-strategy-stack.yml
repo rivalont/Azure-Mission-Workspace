@@ -1,0 +1,19 @@
+parameters:
+  azureServiceConnection: ''
+  location: ''
+  stackName: ''
+  resourceGroupName: ''
+  templateFile: ''
+  parameterFile: ''
+  denySettingsMode: 'none'
+
+steps:
+  - task: AzureCLI@2
+    displayName: Deploy using deployment stack strategy
+    inputs:
+      azureSubscription: '${{ parameters.azureServiceConnection }}'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -euo pipefail
+        az stack group create           --name '${{ parameters.stackName }}'           --resource-group '${{ parameters.resourceGroupName }}'           --location '${{ parameters.location }}'           --template-file '${{ parameters.templateFile }}'           --parameters '@${{ parameters.parameterFile }}'           --deny-settings-mode '${{ parameters.denySettingsMode }}'           --action-on-unmanage detachAll           --output json > $(Build.ArtifactStagingDirectory)/deployment-result.json

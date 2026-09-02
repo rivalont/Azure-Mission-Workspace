@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/deployment-evidence.schema.json",
+  "title": "Deployment Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "deploymentRequest",
+    "resolvedServicePattern",
+    "environmentProfileReference",
+    "renderedParameters",
+    "compiledTemplate",
+    "templateValidation",
+    "whatIfRaw",
+    "whatIfNormalized",
+    "policyResults",
+    "riskAssessment",
+    "approvals",
+    "sourceRevision",
+    "pipelineExecution",
+    "deploymentResult",
+    "resourceOutputs",
+    "auditEvents"
+  ],
+  "properties": {
+    "deploymentRequest": { "$ref": "#/$defs/hashUriReference" },
+    "resolvedServicePattern": { "$ref": "#/$defs/hashUriReference" },
+    "environmentProfileReference": { "$ref": "#/$defs/hashUriReference" },
+    "renderedParameters": { "$ref": "#/$defs/hashUriReference" },
+    "compiledTemplate": { "$ref": "#/$defs/hashUriReference" },
+    "templateValidation": { "$ref": "#/$defs/hashUriReference" },
+    "whatIfRaw": { "$ref": "#/$defs/hashUriReference" },
+    "whatIfNormalized": { "$ref": "#/$defs/hashUriReference" },
+    "policyResults": { "$ref": "#/$defs/hashUriReference" },
+    "riskAssessment": { "$ref": "#/$defs/hashUriReference" },
+    "approvals": { "$ref": "#/$defs/hashUriReference" },
+    "sourceRevision": { "$ref": "#/$defs/hashUriReference" },
+    "pipelineExecution": { "$ref": "#/$defs/hashUriReference" },
+    "deploymentResult": { "$ref": "#/$defs/hashUriReference" },
+    "resourceOutputs": { "$ref": "#/$defs/hashUriReference" },
+    "auditEvents": { "$ref": "#/$defs/hashUriReference" }
+  },
+  "$defs": {
+    "hashUriReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["uri", "sha256"],
+      "properties": {
+        "uri": { "type": "string", "format": "uri-reference" },
+        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+        "contentType": { "type": "string" },
+        "generatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

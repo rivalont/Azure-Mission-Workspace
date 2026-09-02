@@ -1,0 +1,27 @@
+{
+  "id": "d4f867f4-cb47-4f57-8656-9d522aa1b001",
+  "servicePatternId": "internal-web-api",
+  "servicePatternVersion": "1.0.0",
+  "environmentProfileId": "azure-commercial-development",
+  "requestedBy": {
+    "objectId": "11111111-1111-1111-1111-111111111111",
+    "displayName": "Adele Vance",
+    "email": "adele.vance@example.com"
+  },
+  "parameters": {
+    "workloadName": "orders-api",
+    "location": "eastus",
+    "environment": "dev",
+    "costCenter": "CC-1000",
+    "owner": "team-orders@example.com",
+    "dataClassification": "Internal",
+    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-observability/providers/Microsoft.OperationalInsights/workspaces/law-platform-dev",
+    "subnetResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-platform/subnets/snet-appsvc-dev",
+    "containerImage": "missionworkspace.azurecr.io/orders-api:1.0.0",
+    "healthCheckPath": "/healthz"
+  },
+  "status": "Draft",
+  "correlationId": "c0b5970f-9876-48c7-97bd-c3533738cc31",
+  "createdAt": "2026-08-26T00:00:00Z",
+  "etag": "etag-1"
+}

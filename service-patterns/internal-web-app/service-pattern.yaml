@@ -1,0 +1,123 @@
+id: internal-web-app
+displayName: Internal Web App
+version: 1.0.0
+description: >-
+  Deploys a private Linux App Service for browser-based internal applications with managed
+  identity, centralized diagnostics, secure defaults, and deterministic naming.
+status: GA
+deploymentStrategy: ArmTemplate
+supportedClouds:
+  - AzureCommercial
+  - AzureGovernment
+supportedEnvironmentTypes:
+  - Development
+  - Test
+  - Staging
+  - Production
+supportedRegions:
+  - eastus
+  - eastus2
+  - centralus
+  - usgovvirginia
+requiredInputs:
+  - name: workloadName
+    type: string
+    description: Short workload identifier used in resource naming.
+  - name: location
+    type: string
+    description: Azure region for the App Service resources.
+  - name: environment
+    type: string
+    description: Environment short code used in tags and settings.
+  - name: costCenter
+    type: string
+    description: Cost allocation tag required by platform governance.
+  - name: owner
+    type: string
+    description: Owning team or contact alias.
+  - name: dataClassification
+    type: string
+    description: Sensitivity tag value used by policy.
+  - name: logAnalyticsWorkspaceResourceId
+    type: string
+    description: Log Analytics workspace resource ID for diagnostics.
+  - name: subnetResourceId
+    type: string
+    description: Delegated subnet resource ID for regional VNet integration.
+  - name: containerImage
+    type: string
+    description: Fully qualified container image reference for the web application.
+optionalInputs:
+  - name: skuName
+    type: string
+    description: App Service plan SKU.
+  - name: healthCheckPath
+    type: string
+    description: Endpoint path used to determine instance health.
+  - name: minInstanceCount
+    type: integer
+    description: Minimum worker count.
+  - name: appSettings
+    type: object
+    description: Additional non-secret web application settings.
+  - name: startupCommand
+    type: string
+    description: Optional container startup command override.
+secretInputs:
+  - name: sessionSigningKeySecretIdentifier
+    type: string
+    description: Key Vault secret identifier for framework session signing where required.
+  - name: downstreamApiClientSecretIdentifier
+    type: string
+    description: Key Vault secret identifier for downstream application integration.
+moduleReferences:
+  - name: app-service-wrapper
+    reference: br:missionworkspace.azurecr.io/bicep/modules/app-service:1.0.0
+    version: 1.0.0
+requiredResourceProviders:
+  - Microsoft.Web
+  - Microsoft.Insights
+  - Microsoft.OperationalInsights
+requiredFeatures:
+  - Microsoft.Web/AllowRegionalVnetIntegration
+requiredTags:
+  - costCenter
+  - owner
+  - environment
+  - dataClassification
+securityControls:
+  managedIdentity: true
+  httpsOnly: true
+  minTlsVersion: '1.2'
+  publicNetworkAccess: Disabled
+networkControls:
+  ingress: Internal callers should reach the app through approved reverse proxy or private network paths.
+  egress: Outbound traffic inherits environment-profile network restrictions.
+  privateEndpointsRequired: false
+  allowedSubnetReferences:
+    - subnetResourceId
+diagnosticControls:
+  required: true
+  logAnalyticsWorkspaceRef: logAnalyticsWorkspaceResourceId
+policyRules:
+  - AMW-TAG-001
+  - AMW-DIAG-001
+  - AMW-WEB-HTTPS-001
+  - AMW-WEB-PNA-001
+approvalRules:
+  - environmentType: Production
+    requiredApprovers: 2
+    approverRole: DeploymentApprover
+ownership:
+  team: Platform Engineering
+  contactEmail: platform-team@example.com
+documentation:
+  link: ./README.md
+deprecation: null
+outputs:
+  - name: appServiceName
+    description: Name of the created App Service resource.
+  - name: defaultHostName
+    description: Default hostname assigned to the site.
+  - name: principalId
+    description: System-assigned managed identity principal ID.

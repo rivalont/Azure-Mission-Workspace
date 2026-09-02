@@ -1,0 +1,27 @@
+{
+  "id": "b1496406-69e4-4ab5-9250-a1f33207a002",
+  "servicePatternId": "internal-web-app",
+  "servicePatternVersion": "1.0.0",
+  "environmentProfileId": "azure-commercial-test",
+  "requestedBy": {
+    "objectId": "22222222-2222-2222-2222-222222222222",
+    "displayName": "Joni Sherman",
+    "email": "joni.sherman@example.com"
+  },
+  "parameters": {
+    "workloadName": "hr-portal",
+    "location": "eastus2",
+    "environment": "test",
+    "costCenter": "CC-2050",
+    "owner": "team-hr@example.com",
+    "dataClassification": "Internal",
+    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-observability/providers/Microsoft.OperationalInsights/workspaces/law-platform-test",
+    "subnetResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-platform/subnets/snet-appsvc-test",
+    "containerImage": "missionworkspace.azurecr.io/hr-portal:1.0.0",
+    "healthCheckPath": "/"
+  },
+  "status": "Draft",
+  "correlationId": "31234dd7-95bc-4dc3-a072-ec49ad10fb73",
+  "createdAt": "2026-08-26T00:00:00Z",
+  "etag": "etag-1"
+}

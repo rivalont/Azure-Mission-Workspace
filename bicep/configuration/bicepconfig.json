@@ -1,0 +1,52 @@
+{
+  "analyzers": {
+    "core": {
+      "verbose": false,
+      "enabled": true,
+      "rules": {
+        "adminusername-should-not-be-literal": {
+          "level": "error"
+        },
+        "artifacts-parameters": {
+          "level": "warning"
+        },
+        "max-outputs": {
+          "level": "warning",
+          "maxAllowed": 12
+        },
+        "no-conflicting-metadata": {
+          "level": "error"
+        },
+        "no-hardcoded-env-urls": {
+          "level": "error"
+        },
+        "no-hardcoded-location": {
+          "level": "warning"
+        },
+        "no-unused-params": {
+          "level": "error"
+        },
+        "prefer-interpolation": {
+          "level": "warning"
+        },
+        "secure-parameter-default": {
+          "level": "error"
+        },
+        "simplify-interpolation": {
+          "level": "warning"
+        },
+        "use-parent-property": {
+          "level": "warning"
+        }
+      }
+    }
+  },
+  "moduleAliases": {
+    "br": {
+      "missionworkspace": {
+        "registry": "missionworkspace.azurecr.io",
+        "modulePath": "bicep/modules"
+      }
+    }
+  }
+}

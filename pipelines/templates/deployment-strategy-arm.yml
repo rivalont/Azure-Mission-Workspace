@@ -1,0 +1,17 @@
+parameters:
+  azureServiceConnection: ''
+  location: ''
+  deploymentName: ''
+  templateFile: ''
+  parameterFile: ''
+
+steps:
+  - task: AzureCLI@2
+    displayName: Deploy using ARM template strategy
+    inputs:
+      azureSubscription: '${{ parameters.azureServiceConnection }}'
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        set -euo pipefail
+        az deployment sub create           --name '${{ parameters.deploymentName }}'           --location '${{ parameters.location }}'           --template-file '${{ parameters.templateFile }}'           --parameters '@${{ parameters.parameterFile }}'           --output json > $(Build.ArtifactStagingDirectory)/deployment-result.json

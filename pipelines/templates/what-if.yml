@@ -1,0 +1,28 @@
+parameters:
+  azureServiceConnection: ''
+  location: ''
+  deploymentName: 'amw-what-if'
+  templateFile: ''
+  parameterFile: ''
+  enabled: false
+
+steps:
+  - ${{ if eq(parameters.enabled, true) }}:
+      - task: AzureCLI@2
+        displayName: Generate ARM what-if plan
+        inputs:
+          azureSubscription: '${{ parameters.azureServiceConnection }}'
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            set -euo pipefail
+            mkdir -p $(Build.ArtifactStagingDirectory)/whatif
+            az deployment sub what-if               --name '${{ parameters.deploymentName }}'               --location '${{ parameters.location }}'               --template-file '${{ parameters.templateFile }}'               --parameters '@${{ parameters.parameterFile }}'               --result-format FullResourcePayloads               --output json > $(Build.ArtifactStagingDirectory)/whatif/what-if-raw.json
+            jq '{status:"Completed", changes:.changes}' $(Build.ArtifactStagingDirectory)/whatif/what-if-raw.json > $(Build.ArtifactStagingDirectory)/whatif/what-if-normalized.json
+
+  - ${{ if ne(parameters.enabled, true) }}:
+      - script: |
+          mkdir -p $(Build.ArtifactStagingDirectory)/whatif
+          echo '{"skipped":true,"reason":"Authenticated what-if disabled for this run."}' > $(Build.ArtifactStagingDirectory)/whatif/what-if-raw.json
+          cp $(Build.ArtifactStagingDirectory)/whatif/what-if-raw.json $(Build.ArtifactStagingDirectory)/whatif/what-if-normalized.json
+        displayName: Record skipped what-if

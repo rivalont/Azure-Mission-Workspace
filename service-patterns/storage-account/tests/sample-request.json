@@ -1,0 +1,28 @@
+{
+  "id": "3c3e4297-6776-40ba-a7fc-8adac82ca003",
+  "servicePatternId": "storage-account",
+  "servicePatternVersion": "1.0.0",
+  "environmentProfileId": "azure-commercial-development",
+  "requestedBy": {
+    "objectId": "33333333-3333-3333-3333-333333333333",
+    "displayName": "Megan Bowen",
+    "email": "megan.bowen@example.com"
+  },
+  "parameters": {
+    "workloadName": "ordersdata",
+    "location": "eastus",
+    "environment": "dev",
+    "costCenter": "CC-1000",
+    "owner": "team-orders@example.com",
+    "dataClassification": "Confidential",
+    "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-observability/providers/Microsoft.OperationalInsights/workspaces/law-platform-dev",
+    "replicationSku": "Standard_LRS",
+    "subnetResourceIds": [
+      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-platform/subnets/snet-private-endpoints"
+    ]
+  },
+  "status": "Draft",
+  "correlationId": "919d7a1f-d58d-4c0b-bd59-3e24e05e1dab",
+  "createdAt": "2026-08-26T00:00:00Z",
+  "etag": "etag-1"
+}

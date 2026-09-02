@@ -1,0 +1,117 @@
+id: key-vault
+displayName: Key Vault
+version: 1.0.0
+description: >-
+  Deploys a governed Key Vault with RBAC authorization, purge protection, private network
+  access, diagnostics, and deterministic naming for secret and key hosting scenarios.
+status: GA
+deploymentStrategy: DeploymentStack
+supportedClouds:
+  - AzureCommercial
+  - AzureGovernment
+supportedEnvironmentTypes:
+  - Development
+  - Test
+  - Staging
+  - Production
+supportedRegions:
+  - eastus
+  - eastus2
+  - centralus
+  - usgovvirginia
+requiredInputs:
+  - name: workloadName
+    type: string
+    description: Short workload identifier used in resource naming.
+  - name: location
+    type: string
+    description: Azure region for the Key Vault deployment.
+  - name: environment
+    type: string
+    description: Environment short code used in tags and naming.
+  - name: costCenter
+    type: string
+    description: Cost allocation tag required by platform policy.
+  - name: owner
+    type: string
+    description: Owning team or email alias.
+  - name: dataClassification
+    type: string
+    description: Sensitivity classification for the hosted secrets and keys.
+  - name: logAnalyticsWorkspaceResourceId
+    type: string
+    description: Log Analytics workspace resource ID for diagnostic streaming.
+  - name: tenantId
+    type: string
+    description: Entra tenant ID used by the vault.
+  - name: subnetResourceId
+    type: string
+    description: Approved subnet resource ID for private endpoint placement or network ACLs.
+optionalInputs:
+  - name: softDeleteRetentionInDays
+    type: integer
+    description: Number of days retained after soft delete.
+  - name: purgeProtectionEnabled
+    type: boolean
+    description: Whether purge protection is enabled.
+  - name: keyVaultSku
+    type: string
+    description: Vault SKU, defaulting to standard.
+  - name: allowedObjectIds
+    type: array
+    description: Entra object IDs granted secret user access through RBAC assignments.
+secretInputs:
+  - name: bootstrapSecretIdentifier
+    type: string
+    description: Key Vault secret identifier consumed by downstream bootstrap automation.
+moduleReferences:
+  - name: key-vault-wrapper
+    reference: br:missionworkspace.azurecr.io/bicep/modules/key-vault:1.0.0
+    version: 1.0.0
+requiredResourceProviders:
+  - Microsoft.KeyVault
+  - Microsoft.Insights
+  - Microsoft.OperationalInsights
+requiredFeatures:
+  - Microsoft.KeyVault/enableSoftDelete
+requiredTags:
+  - costCenter
+  - owner
+  - environment
+  - dataClassification
+securityControls:
+  managedIdentity: false
+  httpsOnly: true
+  minTlsVersion: '1.2'
+  publicNetworkAccess: Disabled
+networkControls:
+  ingress: Private access only with explicit allowed subnet references.
+  egress: Not applicable to vault data plane; callers are governed separately.
+  privateEndpointsRequired: true
+  allowedSubnetReferences:
+    - subnetResourceId
+diagnosticControls:
+  required: true
+  logAnalyticsWorkspaceRef: logAnalyticsWorkspaceResourceId
+policyRules:
+  - AMW-TAG-001
+  - AMW-DIAG-001
+  - AMW-KV-PURGE-001
+  - AMW-KV-PNA-001
+approvalRules:
+  - environmentType: Production
+    requiredApprovers: 2
+    approverRole: DeploymentApprover
+ownership:
+  team: Platform Engineering
+  contactEmail: platform-team@example.com
+documentation:
+  link: ./README.md
+deprecation: null
+outputs:
+  - name: keyVaultName
+    description: Name of the created Key Vault.
+  - name: vaultUri
+    description: DNS URI for the Key Vault.
+  - name: resourceId
+    description: Resource ID of the vault.

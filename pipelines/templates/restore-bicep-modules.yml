@@ -1,0 +1,12 @@
+parameters:
+  repositoryRoot: '.'
+
+steps:
+  - script: |
+      echo "Restoring Bicep modules and checking local syntax..."
+      find "${{ parameters.repositoryRoot }}/service-patterns" -name main.bicep -print0 | while IFS= read -r -d '' file; do
+        echo "Processing $file"
+        az bicep restore --file "$file"
+      done
+    displayName: Restore Bicep module references
+    failOnStderr: false

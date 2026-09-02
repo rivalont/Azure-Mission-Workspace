@@ -1,0 +1,49 @@
+{
+  "id": "azure-commercial-test",
+  "displayName": "Azure Commercial Test",
+  "cloud": "AzureCommercial",
+  "tenantId": "00000000-0000-0000-0000-000000000000",
+  "subscriptionId": "00000000-0000-0000-0000-000000000000",
+  "managementGroupId": "00000000-0000-0000-0000-000000000000",
+  "defaultLocation": "eastus2",
+  "allowedLocations": ["eastus", "eastus2"],
+  "resourceGroupStrategy": {
+    "mode": "CreatePerWorkload",
+    "namePattern": "rg-amw-{workload}-{environment}-{location}",
+    "tagsInherited": true
+  },
+  "networkIntegration": {
+    "vnetStrategy": "Required",
+    "privateEndpointRequiredPatterns": ["storage-account", "key-vault"],
+    "approvedSubnetResourceIds": [
+      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-platform/subnets/snet-appsvc-test",
+      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/virtualNetworks/vnet-platform/subnets/snet-private-endpoints"
+    ]
+  },
+  "privateDnsConfiguration": {
+    "enabled": true,
+    "zoneResourceIds": [
+      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/privateDnsZones/privatelink.azurewebsites.net",
+      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/privateDnsZones/privatelink.blob.core.windows.net",
+      "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-network/providers/Microsoft.Network/privateDnsZones/privatelink.vaultcore.azure.net"
+    ]
+  },
+  "logAnalyticsWorkspaceResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-observability/providers/Microsoft.OperationalInsights/workspaces/law-platform-test",
+  "policyAssignmentScope": "/providers/Microsoft.Management/managementGroups/00000000-0000-0000-0000-000000000000",
+  "approvedModuleRegistry": {
+    "alias": "missionworkspace",
+    "registry": "missionworkspace.azurecr.io",
+    "modulePath": "bicep/modules"
+  },
+  "requiredTags": ["costCenter", "owner", "environment", "dataClassification"],
+  "allowedServicePatterns": ["internal-web-api", "internal-web-app", "storage-account", "key-vault"],
+  "approvalPolicy": {
+    "productionApprovers": 2,
+    "changeWindowRequired": false,
+    "maxValidationAgeHours": 12
+  },
+  "deploymentIdentityReference": {
+    "type": "FederatedServiceConnection",
+    "value": "azdo-sc-amw-commercial-test"
+  }
+}

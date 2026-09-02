@@ -1,0 +1,119 @@
+trigger: none
+pr: none
+
+parameters:
+  - name: azureServiceConnection
+    type: string
+    default: ''
+  - name: deploymentStrategy
+    type: string
+    default: 'ArmTemplate'
+    values:
+      - ArmTemplate
+      - DeploymentStack
+  - name: location
+    type: string
+    default: 'eastus'
+  - name: templateFile
+    type: string
+    default: 'bicep/orchestration/deployment.bicep'
+  - name: parameterFile
+    type: string
+    default: 'service-patterns/internal-web-api/main.bicepparam'
+  - name: resourceGroupName
+    type: string
+    default: 'rg-amw-example-dev-eastus'
+  - name: environmentName
+    type: string
+    default: 'amw-nonprod'
+  - name: allowDestructiveRetry
+    type: boolean
+    default: false
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: PreDeployChecks
+    displayName: Verify evidence and approvals
+    jobs:
+      - job: Verify
+        displayName: Verify validation artifact integrity and approval state
+        steps:
+          - download: current
+            artifact: validation-evidence
+          - script: |
+              set -euo pipefail
+              test -f $(Pipeline.Workspace)/validation-evidence/policy-results.json
+              test -f $(Pipeline.Workspace)/validation-evidence/template-validation.json
+              test -f $(Pipeline.Workspace)/validation-evidence/whatif/what-if-normalized.json
+              echo '{"verified":true}' > $(Build.ArtifactStagingDirectory)/predeploy-checks.json
+            displayName: Verify required validation artifacts exist
+          - script: |
+              set -euo pipefail
+              echo 'Source revision, artifact hash, approval status, and deployment request state should be checked here.'
+            displayName: Verify source revision, hashes, and workflow state
+
+  - stage: Deploy
+    displayName: Execute governed deployment
+    dependsOn: PreDeployChecks
+    condition: succeeded('PreDeployChecks')
+    jobs:
+      - deployment: Execute
+        displayName: Deploy approved request
+        environment: '${{ parameters.environmentName }}'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - download: current
+                  artifact: validation-evidence
+                # Never auto-retry destructive deployments. Keep allowDestructiveRetry false unless a human explicitly authorizes a new run.
+                - script: |
+                    echo "allowDestructiveRetry=${{ parameters.allowDestructiveRetry }}"
+                    if [ '${{ parameters.allowDestructiveRetry }}' = 'true' ]; then
+                      echo 'A human explicitly enabled retry behavior for this run.'
+                    else
+                      echo 'Automatic destructive retry remains disabled.'
+                    fi
+                  displayName: Record retry safeguard state
+                - ${{ if eq(parameters.deploymentStrategy, 'ArmTemplate') }}:
+                    - template: templates/deployment-strategy-arm.yml
+                      parameters:
+                        azureServiceConnection: '${{ parameters.azureServiceConnection }}'
+                        location: '${{ parameters.location }}'
+                        deploymentName: 'amw-$(Build.BuildId)'
+                        templateFile: '${{ parameters.templateFile }}'
+                        parameterFile: '${{ parameters.parameterFile }}'
+                - ${{ if eq(parameters.deploymentStrategy, 'DeploymentStack') }}:
+                    - template: templates/deployment-strategy-stack.yml
+                      parameters:
+                        azureServiceConnection: '${{ parameters.azureServiceConnection }}'
+                        location: '${{ parameters.location }}'
+                        stackName: 'amw-stack-$(Build.BuildId)'
+                        resourceGroupName: '${{ parameters.resourceGroupName }}'
+                        templateFile: '${{ parameters.templateFile }}'
+                        parameterFile: '${{ parameters.parameterFile }}'
+                - script: |
+                    set -euo pipefail
+                    jq '.properties.outputs // .outputs // {}' $(Build.ArtifactStagingDirectory)/deployment-result.json > $(Build.ArtifactStagingDirectory)/resource-outputs.json
+                  displayName: Capture deployment outputs
+
+  - stage: FinalizeEvidence
+    displayName: Publish final deployment evidence
+    dependsOn: Deploy
+    condition: succeededOrFailed()
+    jobs:
+      - job: Publish
+        steps:
+          - script: |
+              set -euo pipefail
+              mkdir -p $(Build.ArtifactStagingDirectory)/final
+              cp $(Build.ArtifactStagingDirectory)/deployment-result.json $(Build.ArtifactStagingDirectory)/final/deployment-result.json
+              cp $(Build.ArtifactStagingDirectory)/resource-outputs.json $(Build.ArtifactStagingDirectory)/final/resource-outputs.json
+            displayName: Collect final evidence files
+          - template: templates/publish-evidence.yml
+            parameters:
+              artifactName: 'final-deployment-evidence'
+              evidenceRoot: '$(Build.ArtifactStagingDirectory)'

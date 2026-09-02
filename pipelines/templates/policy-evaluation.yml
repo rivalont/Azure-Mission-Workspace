@@ -1,0 +1,50 @@
+parameters:
+  repositoryRoot: '.'
+  normalizedWhatIfPath: '$(Build.ArtifactStagingDirectory)/whatif/what-if-normalized.json'
+  outputPath: '$(Build.ArtifactStagingDirectory)/policy-results.json'
+  failOnBlockingFindings: true
+
+steps:
+  - script: |
+      set -euo pipefail
+      mkdir -p "$(dirname '${{ parameters.outputPath }}')"
+      python - <<'PY'
+      import json
+      from pathlib import Path
+      what_if = Path('${{ parameters.normalizedWhatIfPath }}')
+      data = json.loads(what_if.read_text(encoding='utf-8')) if what_if.exists() else {"changes": []}
+      findings = []
+      for change in data.get('changes', []):
+          after = change.get('after', {}) or {}
+          resource_id = after.get('id', change.get('resourceId', 'unknown'))
+          if after.get('type') == 'Microsoft.Web/sites' and after.get('properties', {}).get('publicNetworkAccess') != 'Disabled':
+              findings.append({
+                  'ruleId': 'AMW-WEB-PNA-001',
+                  'title': 'App Service public network access must be disabled',
+                  'description': 'The normalized what-if output indicates public network access is not disabled.',
+                  'severity': 'Blocking',
+                  'resourceId': resource_id,
+                  'propertyPath': 'properties.publicNetworkAccess',
+                  'actualValue': after.get('properties', {}).get('publicNetworkAccess'),
+                  'expectedCondition': 'Disabled',
+                  'remediation': 'Set publicNetworkAccess to Disabled in the service pattern wrapper or rendered parameters.',
+                  'documentationReference': 'docs/security-model.md'
+              })
+      Path('${{ parameters.outputPath }}').write_text(json.dumps(findings, indent=2), encoding='utf-8')
+      print(f'Wrote {len(findings)} policy findings')
+      PY
+    displayName: Evaluate normalized what-if against policy rules
+
+  - ${{ if eq(parameters.failOnBlockingFindings, true) }}:
+      - script: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          findings = json.loads(Path('${{ parameters.outputPath }}').read_text(encoding='utf-8'))
+          blocking = [f for f in findings if f.get('severity') == 'Blocking']
+          if blocking:
+              raise SystemExit(f'Blocking policy findings present: {len(blocking)}')
+          print('No blocking findings detected.')
+          PY
+        displayName: Fail on blocking policy findings

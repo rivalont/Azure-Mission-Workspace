@@ -1,0 +1,20 @@
+parameters:
+  repositoryRoot: '.'
+
+steps:
+  - script: |
+      set -euo pipefail
+      echo "Checking Bicep formatting"
+      find "${{ parameters.repositoryRoot }}/service-patterns" "${{ parameters.repositoryRoot }}/bicep" -name '*.bicep' -print0 | while IFS= read -r -d '' file; do
+        az bicep format --file "$file" --stdout >/dev/null
+      done
+    displayName: Validate Bicep formatting
+
+  - script: |
+      set -euo pipefail
+      echo "Running Bicep linter with repository configuration"
+      export BICEP_CONFIG_FILE="${{ parameters.repositoryRoot }}/bicep/configuration/bicepconfig.json"
+      find "${{ parameters.repositoryRoot }}/service-patterns" "${{ parameters.repositoryRoot }}/bicep" -name '*.bicep' -print0 | while IFS= read -r -d '' file; do
+        az bicep build --file "$file" --stdout >/dev/null
+      done
+    displayName: Lint Bicep sources
