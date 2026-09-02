@@ -50,9 +50,7 @@ public sealed class PolicyTools
         return evaluation is null ? null : PolicyEvaluationDto.FromDomain(evaluation);
     }
 
-    [McpServerTool(Name = "explain_policy_finding", ReadOnly = true, Idempotent = false)]
-    [Description("Read-only. Produces a natural-language explanation of a single deterministic policy finding, identified by its rule id, to help the requestor remediate it. The explanation never changes or bypasses the underlying finding.")]
-    [Authorize(Policy = AuthorizationPolicyNames.DeploymentRequestor)]
+[McpServerTool(Name = "explain_policy_finding", ReadOnly = true, Idempotent = true)]
     public async Task<string> ExplainPolicyFindingAsync(
         [Description("The deployment request id.")] Guid deploymentRequestId,
         [Description("The ruleId of the finding to explain.")] string ruleId,
