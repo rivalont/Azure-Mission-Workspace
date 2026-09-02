@@ -51,9 +51,7 @@ public sealed class DeploymentPlanTools
         return plan is null ? null : DeploymentPlanDto.FromDomain(plan);
     }
 
-    [McpServerTool(Name = "explain_deployment_plan", ReadOnly = true, Idempotent = false)]
-    [Description("Read-only. Produces a natural-language summary of the deterministic deployment plan. The summary is advisory explanation only; it never overrides the deterministic risk classification or change list.")]
-    [Authorize(Policy = AuthorizationPolicyNames.DeploymentRequestor)]
+[McpServerTool(Name = "explain_deployment_plan", ReadOnly = true, Idempotent = true)]
     public async Task<string> ExplainDeploymentPlanAsync(
         [Description("The deployment request id.")] Guid deploymentRequestId,
         CancellationToken cancellationToken)
